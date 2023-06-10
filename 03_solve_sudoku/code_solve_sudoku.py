@@ -41,6 +41,7 @@ def first_step(main_array):
 
 
 # Auxiliary (I) function for second step function
+# Get missing values from a subbox
 def possible_values_in_subbox(main_array, row_block, col_block):
 
     # Redefine subbox parameters
@@ -61,6 +62,7 @@ def possible_values_in_subbox(main_array, row_block, col_block):
 
 
 # Auxiliary (II) function for second step function
+# Assign value taking into account its presence in neighbor subboxes
 def assign_value_into_empty_subbox_position(main_array, row_block, col_block, empty_indexes_sbx, value):
 
     # Redefine subbox parameters
@@ -69,7 +71,6 @@ def assign_value_into_empty_subbox_position(main_array, row_block, col_block, em
     # Search for the value row-wise within subboxes neighbors
     three_subboxes_rowwise = main_array[3*ii:3*(ii+1),:]
     aux_row_indices_to_block = np.argwhere(three_subboxes_rowwise==value)
-    # print(len(aux_row_indices_to_block))
     if len(aux_row_indices_to_block) > 0:
         # Block rows from list of empty positions
         row_indices_to_block = [(3*ii)+index[0] for index in aux_row_indices_to_block]
@@ -78,38 +79,33 @@ def assign_value_into_empty_subbox_position(main_array, row_block, col_block, em
     # Search for the value column-wise within subboxes neighbors
     three_subboxes_colwise = main_array[:,3*jj:3*(jj+1)]
     aux_col_indices_to_block = np.argwhere(three_subboxes_colwise==value)
-    # print(len(aux_col_indices_to_block))
     if len(aux_col_indices_to_block) > 0:
         # Block columns from list of empty positions
         col_indices_to_block = [(3*jj)+index[1] for index in aux_col_indices_to_block]
         empty_indexes_sbx = [elem for elem in empty_indexes_sbx if elem[1] not in col_indices_to_block]
 
     # Assign the value if only one position is allowed within the subbox
-    # print(len(empty_indexes_sbx))
     if len(empty_indexes_sbx) == 1:
         main_array[empty_indexes_sbx[0][0], empty_indexes_sbx[0][1]] = value
 
     return main_array
 
 
-# Second step function: finds the possible values within a subbox
-# It takes into account subboxes that share the same rows or columns
+# Second step function: find possible values within a subbox
+# It takes into account already filled values from neighbor subboxes 
 def second_step(main_array):
 
     for ii in range(3):
         for jj in range(3):
-
-            # print("|||||||||||||||||||||| ii={}, jj={} ||||||||||||||||||||||".format(ii, jj))
             
             # Call function 'possible_values_in_subbox'
             possible_values = possible_values_in_subbox(main_array, row_block=ii, col_block=jj)
 
+            # Check if there are missing values in the subbox
             if len(possible_values) > 0:
 
                 # Iterate over all possible values
                 for value in possible_values:   
-                    # print("****** value *******") 
-                    # print(value)
 
                     # List of empty positions in the subbox
                     aux_empty_indexes = np.argwhere(np.isnan(main_array[3*ii:3*(ii+1), 3*jj:3*(jj+1)]))
@@ -119,6 +115,69 @@ def second_step(main_array):
                     main_array = assign_value_into_empty_subbox_position(main_array, row_block=ii, col_block=jj, empty_indexes_sbx=empty_indexes_sbx, value=value)
 
     return main_array
+
+
+# Auxiliary (I) function for third step function
+# Get all the available positions in the board for a specific value
+def available_indexes_for_value(main_array, value):
+
+    # Empty positions
+    aux_empty_indexes = np.argwhere(np.isnan(main_array))
+    empty_indexes = np.array([[elem[0],elem[1]] for elem in aux_empty_indexes])
+
+    # Prohibited positions for value (row-wise and column-wise)
+    aux_positions_to_block = np.argwhere(main_array==value)
+    if len(aux_positions_to_block) > 0:
+        for elem_block in aux_positions_to_block:
+            # Delete prohibited positions from empty positions
+            empty_indexes = [ei for ei in empty_indexes if (ei[0] != elem_block[0]) and (ei[1] != elem_block[1])]
+
+    # More prohibited positions for value
+    for ii in range(3):
+        for jj in range(3):
+            possible_values = possible_values_in_subbox(main_array, row_block=ii, col_block=jj)
+            
+            # Prohibited positions for value in subboxes that already had the value
+            if value not in possible_values:
+                # Delete prohibited positions from empty positions
+                empty_indexes = [ei for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == False]
+
+            # Prohibited positions for value due to prohibitions from neighbor subboxes
+            empty_indexes_subbox = [[ei[0], ei[1]] for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == True]
+            rows_to_block = list(set([ei[0] for ei in empty_indexes_subbox]))
+            unique_row = len(rows_to_block)==1
+            if unique_row:
+                # Delete prohibited positions from empty positions
+                empty_indexes = [ei for ei in empty_indexes if ei[0] != rows_to_block[0]]
+            cols_to_block = list(set([ei[1] for ei in empty_indexes_subbox]))
+            unique_col = len(cols_to_block)==1
+            if unique_col:
+                # Delete prohibited positions from empty positions
+                empty_indexes = [ei for ei in empty_indexes if ei[1] != cols_to_block[0]]
+
+    return empty_indexes
+
+
+
+# Third step function: finds the possible values within a subbox 
+# It is based on prohibitions from neighbor subboxes
+def third_step(main_array):
+
+    # Iterate over all possible values
+    for value in range(1,10):
+
+        # Call function 'available_indexes_for_value'
+        empty_indexes = available_indexes_for_value(main_array, value=value)
+
+        # Assign value if the subbox has only one available position
+        for ii in range(3):
+            for jj in range(3):
+                empty_indexes_subbox = [[ei[0], ei[1]] for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == True]
+                if len(empty_indexes_subbox)==1:
+                    main_array[empty_indexes_subbox[0][0], empty_indexes_subbox[0][1]] = value
+
+    return main_array
+
 
 
 
@@ -144,12 +203,15 @@ def main(input):
             # print('----------------- main array ----------------- ')
             # print(main_array)
             main_array = first_step(main_array)
-            # print('----------------- first step ----------------- ')
-            # print(main_array)
-            main_array = second_step(main_array)
-            # print('----------------- second step ----------------- ')
+            print('----------------- first step ----------------- ')
             print(main_array)
-            
+            main_array = second_step(main_array)
+            print('----------------- second step ----------------- ')
+            print(main_array)
+            main_array = third_step(main_array)
+            print('----------------- third step ----------------- ')
+            print(main_array)
+
             # Empty cells counted after each iteration
             main_array_flat = main_array.reshape(81)
             number_empty_cells = len(list(main_array_flat[np.isnan(main_array_flat)]))
@@ -157,8 +219,8 @@ def main(input):
             # Increase the number of iterations
             number_iterations += 1
             print(number_iterations)
-            # if number_iterations == 2:
-            #     break
+            if number_iterations == 3:
+                break
 
         # Solution 
         result = {"original_board": vs.load_board(input)[0],
@@ -202,13 +264,14 @@ board_2 = [[".",".",".",".",".",".",".",".","."]
 # Call the main function
 if __name__ == '__main__':
     result = main(board_2)
-    # print('---------------------- Original Board -----------------------')
-    # print(result["original_board"])
-    # print('----------------------- Is it valid? ------------------------')
-    # print(result["valid_input"]["input_allowed"])
-    # if result["solved"] == True:
-    #     print('----------------------- Board Solved ------------------------')
-    #     print(result["solution"])
-    #     print('------------------- Number of iterations --------------------')
-    #     print(result["number_iterations"])
+#     # print('---------------------- Original Board -----------------------')
+#     # print(result["original_board"])
+#     # print('----------------------- Is it valid? ------------------------')
+#     # print(result["valid_input"]["input_allowed"])
+#     # if result["solved"] == True:
+#     #     print('----------------------- Board Solved ------------------------')
+#     #     print(result["solution"])
+#     #     print('------------------- Number of iterations --------------------')
+#     #     print(result["number_iterations"])
+
 
