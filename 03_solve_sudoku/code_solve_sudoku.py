@@ -175,7 +175,7 @@ def find_possible_locations_for_all_values(main_array):
 
     # Find two numbers that share the same two possible positions within a subbox
     for first_value in range(1,10):
-        for second_value in range(first_value,10):
+        for second_value in range(1,first_value):
             empty_indexes_by_value_a = empty_indexes_by_value[first_value]
             empty_indexes_by_value_b = empty_indexes_by_value[second_value]
 
@@ -358,14 +358,14 @@ def main(input):
     # Check the validity of the input
     valid_input = vs.main(input)
 
-    # Initialize dictionary for saving the history of the solution
-    dc_solution = {}
-
     # Case when the input is valid
     if valid_input["input_allowed"] == True:
 
         # Initialize variable for number of iterations
         number_iterations = 0
+
+        # Initialize dictionary for saving the history of the solution
+        dc_solution_history = dict()
 
         # Empty cells are counted for the first time
         main_array = vs.load_board(input)[0]
@@ -378,28 +378,52 @@ def main(input):
             # Increase the number of iterations
             number_iterations += 1
 
-            # Run each step and save history
+            # First step
             main_array = first_step(main_array)
-            dc_solution[str(number_iterations)+"_"+"1st"] = {"iteration_number":number_iterations, "play":"first", "board_state":main_array}
+            current_board_status = np.copy(main_array)
+            new_key = "move_"+str((5*(number_iterations-1))+1)
+            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"first", "board_state":current_board_status}
+            
+            # Second step
             main_array = second_step(main_array)
-            dc_solution[str(number_iterations)+"_"+"2nd"] = {"iteration_number":number_iterations, "play":"second", "board_state":main_array}
+            current_board_status = np.copy(main_array)
+            new_key = "move_"+str((5*(number_iterations-1))+2)
+            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"second", "board_state":current_board_status}
+            # dc_solution_history[str(number_iterations)+"_"+"2nd"] = {"iteration_number":number_iterations, "step":"second", "board_state":current_board_status}
+            
+            # Third step
             main_array = third_step(main_array)
-            dc_solution[str(number_iterations)+"_"+"3rd"] = {"iteration_number":number_iterations, "play":"third", "board_state":main_array}
+            current_board_status = np.copy(main_array)
+            new_key = "move_"+str((5*(number_iterations-1))+3)
+            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"third", "board_state":current_board_status}
+
+            # Fourth step
             main_array = fourth_step(main_array)
-            dc_solution[str(number_iterations)+"_"+"4th"] = {"iteration_number":number_iterations, "play":"fourth", "board_state":main_array}
+            current_board_status = np.copy(main_array)
+            new_key = "move_"+str((5*(number_iterations-1))+4)
+            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"fourth", "board_state":current_board_status}
+            
+            # Fifth step
             main_array = fifth_step(main_array)
-            dc_solution[str(number_iterations)+"_"+"5th"] = {"iteration_number":number_iterations, "play":"fifth", "board_state":main_array}
+            current_board_status = np.copy(main_array)
+            new_key = "move_"+str((5*(number_iterations-1))+5)
+            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"fifth", "board_state":current_board_status}
 
             # Empty cells counted after each iteration
             main_array_flat = main_array.reshape(81)
             number_empty_cells = len(list(main_array_flat[np.isnan(main_array_flat)]))
+
+            # Emergency break (the solution should not require more than 10 iterations)
+            if number_iterations==10:
+                print("Emergency break was applied")
+                break
 
         # Solution 
         result = {"original_board": vs.load_board(input)[0],
                   "valid_input": valid_input,
                   "solved": True,
                   "solution": main_array,
-                  "solution_history": dc_solution,
+                  "solution_history": dc_solution_history,
                   "number_iterations": number_iterations}
     
     # Case when the input is not valid
@@ -498,4 +522,10 @@ if __name__ == '__main__':
         print('------------------- Number of iterations --------------------')
         print(result["number_iterations"])
         print('------------------- History of the solution --------------------')
-        print(result["solution_history"])
+        for key, value in result["solution_history"].items():
+            print("*********************")
+            print(key)
+            print("iteration_number", value["iteration_number"])
+            print("step", value["step"])
+            print(value["board_state"])
+        
