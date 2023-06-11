@@ -124,19 +124,13 @@ def available_indexes_for_value(main_array, value):
     # Empty positions
     aux_empty_indexes = np.argwhere(np.isnan(main_array))
     empty_indexes = np.array([[elem[0],elem[1]] for elem in aux_empty_indexes])
-    # print('Initial - empty_indexes')
-    # print(empty_indexes)
 
     # Prohibited positions for value (row-wise and column-wise)
     aux_positions_to_block = np.argwhere(main_array==value)
-    # print("aux_positions_to_block rowwise or columnwise")
-    # print(aux_positions_to_block)
     if len(aux_positions_to_block) > 0:
         for elem_block in aux_positions_to_block:
             # Delete prohibited positions from empty positions
             empty_indexes = [ei for ei in empty_indexes if (ei[0] != elem_block[0]) and (ei[1] != elem_block[1])]
-        # print('After block rowwise and columnwise - empty_indexes')
-        # print(empty_indexes)
 
     # Prohibited positions for value (subbox)
     for ii in range(3):
@@ -147,35 +141,75 @@ def available_indexes_for_value(main_array, value):
             if value not in possible_values:
                 # Delete prohibited positions from empty positions
                 empty_indexes = [ei for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == False]
-    # print('After block subbox - empty_indexes')
-    # print(empty_indexes)
 
     # Prohibited positions for value (subbox neighbors)
     for ii in range(3):
         for jj in range(3):
-
-            # print("-------- ii={}, jj={} -----------".format(ii,jj))
 
             # Prohibited positions for value due to prohibitions from neighbor subboxes
             empty_indexes_subbox = [[ei[0], ei[1]] for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == True]
             rows_to_block = list(set([ei[0] for ei in empty_indexes_subbox]))
             unique_row = len(rows_to_block)==1
             if unique_row:
-                # print("rows_to_block", rows_to_block)
                 # Delete prohibited positions from empty positions
                 empty_indexes = [ei for ei in empty_indexes if (ei[0] != rows_to_block[0]) or ((ei[1] >= 3*jj) and (ei[1] < 3*(jj+1)))]
             
             cols_to_block = list(set([ei[1] for ei in empty_indexes_subbox]))
             unique_col = len(cols_to_block)==1
             if unique_col:
-                # print("cols_to_block", cols_to_block)
                 # Delete prohibited positions from empty positions
                 empty_indexes = [ei for ei in empty_indexes if (ei[1] != cols_to_block[0]) or ((ei[0] >= 3*ii) and (ei[0] < 3*(ii+1)))]
-    
-    # print('After block subboxes neighbors - empty_indexes')
-    # print(empty_indexes)
 
     return empty_indexes
+
+
+
+# Auxiliary (II) function for third step function
+# Generalization of function 'available_indexes_for_value'
+def find_possible_locations_for_all_values(main_array):
+
+    # Dictionary of possible positions for each value
+    empty_indexes_by_value = dict()
+    for value in range(1,10):
+        empty_indexes_by_value[value] = available_indexes_for_value(main_array, value=value)
+
+    # Find two numbers that share the same two possible positions within a subbox
+    for first_value in range(1,10):
+        for second_value in range(1,10):
+            if first_value < second_value:
+                empty_indexes_by_value_a = empty_indexes_by_value[first_value]
+                empty_indexes_by_value_b = empty_indexes_by_value[second_value]
+
+                # Iterate over subboxes
+                for ii in range(3):
+                    for jj in range(3):
+
+                        # Empty indexes within a subbox
+                        eibva_in_subbox = np.array([elem for elem in empty_indexes_by_value_a if (elem[0]>=3*ii) and (elem[0]<3*(ii+1)) and (elem[1]>=3*jj) and (elem[1]<3*(jj+1))])
+                        eibvb_in_subbox = np.array([elem for elem in empty_indexes_by_value_b if (elem[0]>=3*ii) and (elem[0]<3*(ii+1)) and (elem[1]>=3*jj) and (elem[1]<3*(jj+1))])
+
+                        # Compare arrays of empty indexes
+                        if (np.array_equal(eibva_in_subbox, eibvb_in_subbox)) and (len(eibva_in_subbox)==2):
+
+                            # Block column within subbox
+                            cols_to_block = list(set([elem[1] for elem in eibva_in_subbox]))
+                            if len(cols_to_block) == 1:
+                                # print('-------- ii={}, jj={}, first_value={}, second_value={}, eibva_in_subbox={}, eibvb_in_subbox={} -------'.format(ii,jj,first_value,second_value,eibva_in_subbox,eibvb_in_subbox))
+                                # print('cols_to_block', cols_to_block)
+                                for third_value in range(1,10):
+                                    if (third_value != first_value) and (third_value != second_value):
+                                        empty_indexes_by_value[third_value] = [ei for ei in empty_indexes_by_value[third_value] if ((ei[1] == cols_to_block[0]) and (ei[0]>=3*ii) and (ei[0]<3*(ii+1)))==False]
+
+                            # Block row within subbox
+                            rows_to_block = list(set([elem[0] for elem in eibva_in_subbox]))
+                            if len(rows_to_block) == 1:
+                                # print('-------- ii={}, jj={}, first_value={}, second_value={}, eibva_in_subbox={}, eibvb_in_subbox={} -------'.format(ii,jj,first_value,second_value,eibva_in_subbox,eibvb_in_subbox))
+                                # print('rows_to_block', rows_to_block)
+                                for third_value in range(1,10):
+                                    if (third_value != first_value) and (third_value != second_value):
+                                        empty_indexes_by_value[third_value] = [ei for ei in empty_indexes_by_value[third_value] if ((ei[0] == rows_to_block[0]) and (ei[1]>=3*jj) and (ei[1]<3*(jj+1)))==False]
+
+    return empty_indexes_by_value
 
 
 
@@ -183,21 +217,26 @@ def available_indexes_for_value(main_array, value):
 # It is based on prohibitions from neighbor subboxes
 def third_step(main_array):
 
+    # Call function 'available_indexes_for_value'
+    empty_indexes_by_value = find_possible_locations_for_all_values(main_array)
+
     # Iterate over all possible values
     for value in range(1,10):
 
-        # if value == 3:
+        # if value==2:
 
-        # Call function 'available_indexes_for_value'
-        empty_indexes = available_indexes_for_value(main_array, value=value)
+        # Get empty indexes for value
+        empty_indexes = empty_indexes_by_value[value]
+
+        # print('------------- value={} ----------------'.format(value))
+        # print(available_indexes_for_value(main_array, value))
+        # print(empty_indexes)
 
         # Assign value if the subbox has only one available position
         for ii in range(3):
             for jj in range(3):
+                # print('------------- ii={}, jj={}, value={} ----------------'.format(ii,jj,value))
                 empty_indexes_subbox = [[ei[0], ei[1]] for ei in empty_indexes if ((ei[0] >= (3*ii)) and (ei[0] < 3*(ii+1)) and (ei[1] >= (3*jj)) and (ei[1] < 3*(jj+1))) == True]
-                # print("------- ii={}, jj={}, value={} -------".format(ii,jj,value))
-                # print(empty_indexes_subbox)
-                # print(len(empty_indexes_subbox))
                 if len(empty_indexes_subbox)==1:
                     main_array[empty_indexes_subbox[0][0], empty_indexes_subbox[0][1]] = value
 
@@ -293,6 +332,35 @@ def fourth_step(main_array):
 
 
 
+# Fifth step function: finds the possible values for a specific position
+# It is derived from a dictionary whose key:value stands for empty_position:possible_values
+def fifth_step(main_array):
+
+    # Call function 'find_possible_locations_for_all_values'
+    empty_indexes_by_value = find_possible_locations_for_all_values(main_array)
+
+    # Transform dictionary 'empty_indexes_by_value' into 'possible_values_by_indexes'
+    possible_values_by_indexes = dict()
+    for key, value in empty_indexes_by_value.items():
+        for position in value:
+            new_key = str(position[0])+"_"+str(position[1])
+            if new_key not in list(possible_values_by_indexes.keys()):
+                possible_values_by_indexes[new_key] = [int(key)]
+            else:
+                possible_values_by_indexes[new_key] = possible_values_by_indexes[new_key] + [int(key)]
+
+    # Assign value based on dictionary 'possible_values_by_indexes'
+    for key, value in possible_values_by_indexes.items():
+        ii, jj = int(key[0]), int(key[2])
+        row_block = int(ii/3)
+        col_block = int(jj/3)
+        possible_values = possible_values_in_subbox(main_array, row_block, col_block)
+        if (len(value)==1) and (value[0] in possible_values):
+            main_array[ii,jj] = value[0]
+
+    return main_array
+
+
 # Solution of the Sudoku via iterations (main function)
 def main(input):
 
@@ -312,8 +380,6 @@ def main(input):
 
         # Iterations of the different step functions
         while number_empty_cells > 1:
-            # print('----------------- main array ----------------- ')
-            # print(main_array)
             print('----------------- first step ----------------- ')
             main_array = first_step(main_array)
             print(main_array)
@@ -326,6 +392,9 @@ def main(input):
             print('----------------- fourth step ----------------- ')
             main_array = fourth_step(main_array)
             print(main_array)
+            print('----------------- fifth step ----------------- ')
+            main_array = fifth_step(main_array)
+            print(main_array)
 
             # Empty cells counted after each iteration
             main_array_flat = main_array.reshape(81)
@@ -334,8 +403,8 @@ def main(input):
             # Increase the number of iterations
             number_iterations += 1
             print(number_iterations)
-            if number_iterations == 4:
-                break
+            # if number_iterations == 3:
+            #     break
 
         # Solution 
         result = {"original_board": vs.load_board(input)[0],
@@ -351,6 +420,8 @@ def main(input):
                   "solved": False}
 
     return result
+
+
 
 ### Execution of the Sudoku's solution (main function)
 
@@ -391,25 +462,41 @@ board_4 = [["2","5",".",".",".",".",".",".","4"]
 ,["1",".",".",".","6",".","5","8","."]
 ,[".",".",".",".",".",".",".","9","."]
 ,[".",".","6","4",".",".",".",".","."]]
-
-
-board_4_aux = [["2","5",".",".",".",".",".",".","4"]
-,[".",".",".",".","5",".",".",".","9"]
-,[".","8",".","3",".",".","2","5","7"]
-,[".",".",".",".",".",".","3","7","2"]
-,[".","3",".",".",".","7","9","4","8"]
-,["8",".",".",".","4","3","1","6","5"]
-,["1",".",".",".","6",".","5","8","3"]
-,[".",".","8",".",".",".","4","9","6"]
-,[".","9","6","4",".",".","7","2","1"]]
-
-
-
+board_5 = [[".","4",".",".","1","9",".","7","6"]
+,["8",".",".",".",".",".",".",".","3"]
+,[".",".",".","6",".",".",".",".","."]
+,[".","9",".",".","2","7",".","1","."]
+,[".",".","4",".",".",".","9",".","."]
+,[".",".",".",".",".","5",".",".","."]
+,[".",".","3",".","6","2",".",".","7"]
+,[".","2",".","5",".",".",".",".","."]
+,[".",".",".","4",".",".",".","6","."]]
+board_6 = [[".",".","1",".",".","4","8",".","."]
+,[".",".","3","2","8",".",".",".","5"]
+,[".","2",".",".",".","6",".",".","."]
+,[".",".","5",".",".",".",".","7","."]
+,[".","3",".","9","1",".","6",".","."]
+,[".",".",".",".",".","2",".",".","."]
+,[".","9",".","8","3",".","1",".","."]
+,["1",".",".",".",".",".",".",".","6"]
+,[".",".",".",".","4",".",".",".","."]]
+board_7 = [["1",".",".",".","6",".",".",".","."]
+,[".",".","3","9",".","1",".","4","."]
+,["2",".",".",".",".",".",".",".","7"]
+,[".",".",".",".","8",".",".","5","."]
+,[".",".","6",".","4",".",".",".","."]
+,["3",".",".","5",".","6","2",".","."]
+,[".",".","1","3",".","5",".","9","."]
+,[".",".",".","8",".",".",".",".","."]
+,[".","9",".",".",".",".","4",".","."]]
 
 
 # Call the main function
-# if __name__ == '__main__':
-#     result = main(board_4)
+if __name__ == '__main__':
+    
+    # FOR DOCUMENTATION USE 2 and 4
+    result = main(board_2)
+
 #     # print('---------------------- Original Board -----------------------')
 #     # print(result["original_board"])
 #     # print('----------------------- Is it valid? ------------------------')
