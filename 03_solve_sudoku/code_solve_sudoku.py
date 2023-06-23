@@ -246,85 +246,9 @@ def third_step(main_array):
 
 
 
-# Auxiliary (I) function for fourth step function
-# Assign value by completing rows
-def find_value_in_row(main_array, index, value):
-
-    # Set of reference
-    ref_set = {1, 2, 3, 4, 5, 6, 7, 8, 9}
-    # Redefine parameter
-    ii = index
-    # Get line
-    aux_line = main_array[ii,:]
-    # Array having numbers already occupied
-    ar_no_nan = np.sort(aux_line[~np.isnan(aux_line)]).astype(int)
-    # List of needed values inside the subbox
-    possible_values = list(ref_set.difference(set(ar_no_nan)))
-
-    if value in possible_values:
-        # Get empty row indexes for row ii
-        empty_indexes_line = np.argwhere(np.isnan(aux_line))
-        # Find prohibited row indexes for row ii
-        empty_indexes_line = [eil for eil in empty_indexes_line if value not in main_array[:,eil]]
-        # Assign value if there is only one position available in the line
-        if len(empty_indexes_line)==1:
-            main_array[ii,empty_indexes_line[0]] = value
-
-    return main_array
-
-
-
-# Auxiliary (II) function for fourth step function
-# Assign value by completing columns
-def find_value_in_column(main_array, index, value):
-
-    # Set of reference
-    ref_set = {1, 2, 3, 4, 5, 6, 7, 8, 9}
-    # Redefine parameter
-    jj = index
-    # Get line
-    aux_line = main_array[:,jj]
-    # Array having numbers already occupied
-    ar_no_nan = np.sort(aux_line[~np.isnan(aux_line)]).astype(int)
-    # List of needed values inside the subbox
-    possible_values = list(ref_set.difference(set(ar_no_nan)))
-
-    if value in possible_values:
-        
-        # Get empty row indexes for column jj
-        empty_indexes_line = np.argwhere(np.isnan(aux_line))
-        # Find prohibited row indexes for column jj
-        empty_indexes_line = [eil for eil in empty_indexes_line if value not in main_array[eil,:]]
-        # Assign value if there is only one position available in the line
-        if len(empty_indexes_line)==1:
-            main_array[empty_indexes_line[0],jj] = value
-
-    return main_array
-
-
-
-# Fourth step function: finds the possible values within a line
-# It assigns values by completing lines
-def fourth_step(main_array):
-
-    # Iterate from 1 to 9
-    for value in range(1,10):
-
-        # Assign values to lines (i.e. rows or columns)
-        for ii in range(9):
-            # Call function 'find_value_in_row'
-            main_array = find_value_in_row(main_array, index=ii, value=value)
-        for jj in range(9):
-            # Call function 'find_value_in_column'
-            main_array = find_value_in_column(main_array, index=jj, value=value)
-
-    return main_array
-
-
-
-# Fifth step function: finds the possible values for a specific position
+# Fourth step function: finds the possible values for a specific position
 # It is derived from a dictionary whose key:value stands for empty_position:possible_values
-def fifth_step(main_array):
+def fourth_step(main_array):
 
     # Call function 'find_possible_locations_for_all_values'
     empty_indexes_by_value = find_possible_locations_for_all_values(main_array)
@@ -381,33 +305,26 @@ def main(input):
             # First step
             main_array = first_step(main_array)
             current_board_status = np.copy(main_array)
-            new_key = "move_"+str((5*(number_iterations-1))+1)
+            new_key = "move_"+str((4*(number_iterations-1))+1)
             dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"first", "board_state":current_board_status}
             
             # Second step
             main_array = second_step(main_array)
             current_board_status = np.copy(main_array)
-            new_key = "move_"+str((5*(number_iterations-1))+2)
+            new_key = "move_"+str((4*(number_iterations-1))+2)
             dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"second", "board_state":current_board_status}
-            # dc_solution_history[str(number_iterations)+"_"+"2nd"] = {"iteration_number":number_iterations, "step":"second", "board_state":current_board_status}
             
             # Third step
             main_array = third_step(main_array)
             current_board_status = np.copy(main_array)
-            new_key = "move_"+str((5*(number_iterations-1))+3)
+            new_key = "move_"+str((4*(number_iterations-1))+3)
             dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"third", "board_state":current_board_status}
-
+            
             # Fourth step
             main_array = fourth_step(main_array)
             current_board_status = np.copy(main_array)
-            new_key = "move_"+str((5*(number_iterations-1))+4)
+            new_key = "move_"+str((4*(number_iterations-1))+4)
             dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"fourth", "board_state":current_board_status}
-            
-            # Fifth step
-            main_array = fifth_step(main_array)
-            current_board_status = np.copy(main_array)
-            new_key = "move_"+str((5*(number_iterations-1))+5)
-            dc_solution_history[new_key] = {"iteration_number":number_iterations, "step":"fifth", "board_state":current_board_status}
 
             # Empty cells counted after each iteration
             main_array_flat = main_array.reshape(81)
