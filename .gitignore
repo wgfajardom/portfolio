@@ -1,2 +1,4 @@
 # Do not consider images from folder boards
-03_solve_sudoku/boards/*.png
+03_solve_sudoku/boards/board_1A.png
+03_solve_sudoku/boards/board_1B.png
+03_solve_sudoku/boards/board_1C.png
