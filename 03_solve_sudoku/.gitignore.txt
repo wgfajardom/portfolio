@@ -1,2 +1,0 @@
-# Do not consider images from folder boards
-boards/*.png
