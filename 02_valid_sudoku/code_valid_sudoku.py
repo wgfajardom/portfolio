@@ -1,3 +1,8 @@
+### Challenge 02
+### Valid Sudoku
+
+
+### Import libraries
 import numpy as np
 
 ### Definition of functions

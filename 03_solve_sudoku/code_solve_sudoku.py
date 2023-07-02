@@ -1,3 +1,7 @@
+### Challenge 03
+### Sudoku Solver
+
+### Import libraries
 import numpy as np
 import code_valid_sudoku as vs   # Module from challenge 02
 
