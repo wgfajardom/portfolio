@@ -1,0 +1,5 @@
+Challenge 05.
+Translate DNA sequences to proteins.
+Taken from Geeks for Geeks.
+https://www.geeksforgeeks.org/dna-protein-python-3/
+
