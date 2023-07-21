@@ -3,6 +3,11 @@
 
 
 
+### Import libraries
+from matplotlib import pyplot as plt
+
+
+
 ### Definition of functions
 
 # Input validation
@@ -59,7 +64,9 @@ def local_maxima(height):
 def water_capacity(height, sorted_lm):
 
     # Initialize capacity, prohibited indexes, index and value of global maximum
-    capacity = 0
+    total_capacity = 0
+    cell_capacity = [0]*len(height)
+    cell_capacity_to_plot = [0]*len(height)
     prohibited_indexes = []
     id_gm, he_gm = sorted_lm[0][0], sorted_lm[0][1]
 
@@ -82,15 +89,49 @@ def water_capacity(height, sorted_lm):
             if (height[ii] < ht) and (ii not in prohibited_indexes):
                 
                 # Capacity of each cell (column) from the water well
-                cell_capacity = ht-height[ii]
+                cell_capacity[ii] = ht-height[ii]
+                cell_capacity_to_plot[ii] = ht
 
                 # Add cell capacity to the entire water capacity
-                capacity += cell_capacity
+                total_capacity += cell_capacity[ii]
                 
                 # Add the already considered index to the list of prohibited indexes
                 prohibited_indexes.append(ii)
 
-    return capacity
+    return total_capacity, cell_capacity, cell_capacity_to_plot
+
+
+
+# Generate plot of height and water profile
+def plot_input(height, cell_capacity_to_plot, total_capacity):
+
+    # Define variables to plot
+    x_plot = [ii for ii in range(len(height)+1)] 
+    y_plot = height + [height[-1]]
+    water_plot = cell_capacity_to_plot + [cell_capacity_to_plot[-1]]
+
+    # Plot height and water profile 
+    # plt.plot(x_plot, y_plot, '-', color='firebrick', drawstyle='steps-post')
+    plt.fill_between(x_plot, water_plot, step="post", color='aqua', alpha=0.75)
+    plt.fill_between(x_plot, y_plot, step="post", color='firebrick', alpha=1.00)
+    
+    # Additional plot features
+    y_max = max(height)
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+    plt.axis('scaled')
+    plt.xlim([-0.5, max(x_plot)+0.5])
+    plt.ylim([-0.5, max(y_plot)+0.5])
+    plt.yticks([ii for ii in range(y_max+1)])
+    plt.title('Height profile {}. Water capacity: {}'.format("".join([str(c) for c in height]), total_capacity), fontsize=10)
+
+    # Save and close figure
+    plt.savefig("input_{}.png".format("".join([str(c) for c in height])))
+    plt.close()
 
 
 
@@ -107,20 +148,25 @@ def main(height):
         sorted_lm = local_maxima(height)
 
         # Retrieve water capacity by calling function 'water capacity'
-        capacity = water_capacity(height, sorted_lm)
+        total_capacity, cell_capacity, cell_capacity_to_plot = water_capacity(height, sorted_lm)
         message = 'Valid input.'
+
+        # Generate image of the height and water profiles by calling function 'plot_input'
+        plot_input(height, cell_capacity_to_plot, total_capacity)
 
     # Dummy scenario
     elif (len(height)==1) or len(height)==2:
-        capacity = 0
+        total_capacity = 0
+        cell_capacity = [0]*len(height)
         message = 'Dummy case, try using a longer input.'
 
     # Error scenario
     else:
-        capacity = None
+        total_capacity = None
+        cell_capacity = None
         message = 'Input is not valid. Input length (il) should be 1<=il<=2e4. Also, values must be within the range 0<=value<=105.'
 
-    result = {"capacity": capacity, "message": message}
+    result = {"total_capacity": total_capacity, "cell_capacity": cell_capacity, "message": message}
     return result
 
 
@@ -148,22 +194,26 @@ if __name__ == '__main__':
     # Retrieve results
     print('------- Height profile 1 -------')
     print(h1)
-    print(result_1["capacity"])
+    print(result_1["cell_capacity"])
+    print(result_1["total_capacity"])
     print(result_1["message"])
     print('------- Height profile 2 -------')
     print(h2)
-    print(result_2["capacity"])
+    print(result_2["cell_capacity"])
+    print(result_2["total_capacity"])
     print(result_2["message"])
     print('------- Height profile 3 -------')
     print(h3)
-    print(result_3["capacity"])
+    print(result_3["cell_capacity"])
+    print(result_3["total_capacity"])
     print(result_3["message"])
     print('------- Height profile 4 -------')
     print(h4)
-    print(result_4["capacity"])
+    print(result_4["cell_capacity"])
+    print(result_4["total_capacity"])
     print(result_4["message"])
     print('------- Height profile 5 -------')
     print(h5)
-    print(result_5["capacity"])
+    print(result_5["cell_capacity"])
+    print(result_5["total_capacity"])
     print(result_5["message"])        
-          
