@@ -1,5 +1,5 @@
 ### Challenge 08
-### The latest time to catch a bus
+### The Latest Time to Catch a Bus
 
 
 
