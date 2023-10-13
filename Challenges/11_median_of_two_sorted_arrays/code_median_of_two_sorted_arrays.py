@@ -1,5 +1,5 @@
 ### Challenge 11
-### Median of two sorted arrays
+### Median of Two Sorted Arrays
 
 
 
