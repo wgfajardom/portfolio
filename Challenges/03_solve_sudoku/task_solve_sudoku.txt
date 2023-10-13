@@ -1,5 +1,5 @@
 Challenge 03.
-Solve Sudoku.
+Sudoku Solver.
 LeetCode 37.
 https://leetcode.com/problems/sudoku-solver/
 
