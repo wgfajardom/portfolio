@@ -1,5 +1,5 @@
 ### Challenge 05
-### Translate DNA sequences to proteins
+### Translate DNA Sequences to Proteins
 
 
 ### Import libraries
