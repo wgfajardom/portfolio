@@ -1,5 +1,5 @@
 Challenge 01.
-Shortest path in a weighted graph.
+Shortest Path in a Weighted Graph.
 Taken from Coderbyte
 https://coderbyte.com/challenges
 

@@ -1,5 +1,5 @@
 Challenge 08.
-The lastest time to catch a bus.
+The Lastest Time to Catch a Bus.
 LeetCode 2332.
 https://leetcode.com/problems/the-latest-time-to-catch-a-bus/
 

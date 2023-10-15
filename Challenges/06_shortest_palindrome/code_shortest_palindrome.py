@@ -1,5 +1,5 @@
 ### Challenge 06
-### Shortest palindrome
+### Shortest Palindrome
 
 
 # Check input size

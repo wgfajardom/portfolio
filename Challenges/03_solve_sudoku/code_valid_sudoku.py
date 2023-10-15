@@ -1,3 +1,6 @@
+# Module to import
+# It comes from Challenge 02: Valid Sudoku
+
 import numpy as np
 
 ### Definition of functions

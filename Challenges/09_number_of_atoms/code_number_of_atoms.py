@@ -1,5 +1,5 @@
 ### Challenge 09
-### Number of atoms
+### Number of Atoms
 
 
 
