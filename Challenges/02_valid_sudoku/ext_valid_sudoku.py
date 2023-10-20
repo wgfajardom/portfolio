@@ -3,10 +3,12 @@
 ### External Solution
 
 
-### Import libraries
+### Definition of the solution
+
+# Import libraries
 import collections
 
-### Class definition
+# Class for the solution
 class Solution:
     def IsValidSudoku(self, board) -> bool:
         cols = collections.defaultdict(set)
