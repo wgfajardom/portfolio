@@ -175,7 +175,7 @@ def WeightedPath(strArr):
 
 
 # keep this function call here 
-print WeightedPath(raw_input())
+print(WeightedPath(raw_input()))
 
 
 

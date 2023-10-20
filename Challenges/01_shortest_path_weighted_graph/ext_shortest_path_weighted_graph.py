@@ -1,14 +1,19 @@
 ### Challenge 01
 ### Shortest Path in a Weighted Graph
+### External Solution
 
+
+
+### Definition of the solution
+
+# Import libraries
 from collections import namedtuple, deque
 from pprint import pprint as pp
- 
-inf = float('inf')
 
+# Function for the solution
 def WeightedPath(strArr):
 
-  ### Extract information from input
+  ## Extract information from input
   number_of_nodes = int(strArr[0])
   nodes = strArr[1:1+number_of_nodes]
   source = nodes[0]
@@ -17,10 +22,11 @@ def WeightedPath(strArr):
 
   def dijkstra(source, dest, nodes, connections):
 
-      ### Definition of auxiliary variables
+      ## Definition of auxiliary variables
       
       # Dictionary for distances 
       # key: value -> node: accumulated distance from starting node
+      inf = float('inf')
       dist = {node: inf for node in nodes}
       # Distance at the starting node is zero
       dist[source] = 0
@@ -40,10 +46,10 @@ def WeightedPath(strArr):
           neighbours[end].add((start, disttn))
 
 
-      ### First while cycle
-      ### Steps to the closest neighbour, taking into account distance to neighbor. 
-      ### Saves the previous neighbor in dictionary previous.
-      ### Stops when the current node is the ending node or when ... ADD CASE
+      ## First while cycle
+      ## Steps to the closest neighbour, taking into account distance to neighbor. 
+      ## Saves the previous neighbor in dictionary previous.
+      ## Stops when the current node is the ending node or when ... ADD CASE
 
       while q:
 
@@ -69,8 +75,8 @@ def WeightedPath(strArr):
                   previous[v] = u
 
 
-      ### Reconstruct shortest path
-      ### The dictionary previous is used for this task
+      ## Reconstruct shortest path
+      ## The previous dictionary is used for this task
 
       # Dictionary previous having the correct path
       pp(previous)
@@ -91,26 +97,30 @@ def WeightedPath(strArr):
       else:
         result = -1
 
-      ### Retrieve result
+      ## Retrieve result
       return result
 
   return dijkstra(source, dest, nodes, connections)
 
 
-print('--- Result 1 ---')
+### Testing External Solution
+
+# Initialize inputs
 input_1 = ["4","A","B","C","D", "A|B|2", "C|B|11", "C|D|3", "B|D|2"]
+input_2 = ["4","A","B","C","D","A|B|1","B|D|9","B|C|3","C|D|4"]
+input_3 = ["7","A","B","C","D","E","F","G","A|B|1","A|E|9","B|C|2","C|D|1","D|F|2","E|D|6","F|G|2"]
+input_4 = ["4","x","y","z","w","x|y|2","y|z|14", "z|y|31"]
+
+# Executions
+print('--- Example 1 ---')
 print(input_1)
 print(WeightedPath(input_1))
-print('--- Result 2 ---')
-input_2 = ["4","A","B","C","D","A|B|1","B|D|9","B|C|3","C|D|4"]
+print('--- Example 2 ---')
 print(input_2)
 print(WeightedPath(input_2))
-print('--- Result 3 ---')
-input_3 = ["7","A","B","C","D","E","F","G","A|B|1","A|E|9","B|C|2","C|D|1","D|F|2","E|D|6","F|G|2"]
+print('--- Example 3 ---')
 print(input_3)
 print(WeightedPath(input_3))
-print('--- Result 4 ---')
-input_4 = ["4","x","y","z","w","x|y|2","y|z|14", "z|y|31"]
+print('--- Example 4 ---')
 print(input_4)
 print(WeightedPath(input_4))
-
