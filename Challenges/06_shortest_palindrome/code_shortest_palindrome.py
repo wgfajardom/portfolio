@@ -2,6 +2,8 @@
 ### Shortest Palindrome
 
 
+### Definition of functions
+
 # Check input size
 def check_size(s_raw):
     max_allowed_size = 50000

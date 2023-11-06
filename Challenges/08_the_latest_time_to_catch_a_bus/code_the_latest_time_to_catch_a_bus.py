@@ -90,11 +90,6 @@ def latest_time(passengers_s, passengers_by_bus, capacity):
             # Possible spots between passengers
             possible_spots = [elem[0] for elem in diffs if elem[1] > 1]
 
-            print(times_last_bus)
-            print(diffs)
-            print(possible_spots)
-            # print(times_last_bus[max(possible_spots)])
-
             # Take the last available spot
             if len(possible_spots) > 0:
                 lttcab = times_last_bus[max(possible_spots)]-1
