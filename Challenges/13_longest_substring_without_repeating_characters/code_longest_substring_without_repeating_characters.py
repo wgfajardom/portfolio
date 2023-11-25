@@ -102,6 +102,8 @@ class Solution13:
 s1 = "abcabcbb"
 s2 = "bbbbb"
 s3 = "pwwkew"
+s4 = "abcdcefg"
+s5 = "abcacbdd"
 
 # Executions
 print("------------ Example 1 ------------")
@@ -116,3 +118,11 @@ print("------------ Example 3 ------------")
 dc_result_3 = Solution13.main(Solution13, s3)
 print(s3)
 print(dc_result_3)
+print("------------ Example 4 ------------")
+dc_result_4 = Solution13.main(Solution13, s4)
+print(s4)
+print(dc_result_4)
+print("------------ Example 5 ------------")
+dc_result_5 = Solution13.main(Solution13, s5)
+print(s5)
+print(dc_result_5)
