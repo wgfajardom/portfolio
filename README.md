@@ -7,7 +7,7 @@ Along our lives we participate in several projects, either due to study or work 
 </p>
 
 <p align="justify">
-The Data Portfolio is composed into two main parts, namely, <b>Challenges</b> and <b>Projects</b>. 
+The Data Portfolio is composed into three main parts, namely, <b>Challenges</b>, <b>Notes</b>, and <b>Projects</b>. 
 </p>
 
 ### 🔰 [Challenges](https://github.com/wgfajardom/portfolio/tree/main/Challenges)
@@ -30,6 +30,12 @@ Challenges are a set of code exercises that are typically found on technical int
 
 *Notebook*: Jupyter Notebook gathering the task description, proposed and external solutions, into a single human-readable document.\
 *Path*: portfolio/Challenges/XX_<challenge_name>/nt_<challenge_name>.ipynb
+
+### 📝 [Notes](https://github.com/wgfajardom/portfolio/tree/main/Notes)
+
+<p align="justify">
+Compilation of notes from my own learning process. Two topics are addressed, data structures and object-oriented programming (OOP).
+</p>
 
 ### 📚 [Projects](https://github.com/wgfajardom/portfolio/tree/main/Projects)
 
